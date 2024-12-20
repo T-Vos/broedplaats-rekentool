@@ -33,32 +33,43 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
-        <div className="rounded-lg bg-black p-3.5 lg:p-6">
-          <div className="space-y-9">
-            <div className="prose prose-sm prose-invert max-w-none">
-              <h1 className="text-xl font-bold">Descriptive statistics</h1>
-              <div className="mb-9 grid grid-cols-1 gap-5  lg:grid-cols-2">
-                {[
-                  { func: mean, label: 'Mean price kWh' },
-                  { func: median, label: 'Median price kWh' },
-                  { func: max, label: 'Maximum price kWh' },
-                  { func: min, label: 'Minimum price kWh' },
-                  { func: variance, label: 'Variance price kWh' },
-                ].map(({ func, label }) => (
-                  <SimpleBlock
-                    key={label}
-                    mainText={func(
-                      electricity_data.map((x) => x.kWh),
-                    ).toString()}
-                    subtleText={label}
-                  />
-                ))}
+      <div className="flex flex-col justify-start gap-5">
+        <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
+          <div className="rounded-lg bg-black p-3.5 lg:p-6">
+            <div className="space-y-9">
+              <div className="prose prose-sm prose-invert max-w-none">
+                <h1 className="text-xl font-bold">Descriptive statistics</h1>
+                <div className="mb-9 grid grid-cols-1 gap-5  lg:grid-cols-2">
+                  {[
+                    { func: mean, label: 'Mean price kWh' },
+                    { func: median, label: 'Median price kWh' },
+                    { func: max, label: 'Maximum price kWh' },
+                    { func: min, label: 'Minimum price kWh' },
+                    { func: variance, label: 'Variance price kWh' },
+                  ].map(({ func, label }) => (
+                    <SimpleBlock
+                      key={label}
+                      mainText={func(
+                        electricity_data.map((x) => x.kWh),
+                      ).toString()}
+                      subtleText={label}
+                    />
+                  ))}
+                </div>
               </div>
-              <HistogramWithDistribution
-                data={electricity_data.map((x) => x.kWh)}
-                binCount={5}
-              />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
+          <div className="rounded-lg bg-black p-3.5 lg:p-6">
+            <div className="space-y-9">
+              <div className="prose prose-sm prose-invert max-w-none">
+                <h1 className="text-xl font-bold">Graphs</h1>
+                <HistogramWithDistribution
+                  data={electricity_data.map((x) => x.kWh)}
+                  binCount={5}
+                />
+              </div>
             </div>
           </div>
         </div>

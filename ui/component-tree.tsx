@@ -1,5 +1,4 @@
 import { Boundary } from '#/ui/boundary';
-import CountUp from '#/ui/count-up';
 import clsx from 'clsx';
 
 type Item = {
@@ -65,7 +64,7 @@ const List = ({ items, depth }: { items: Item[]; depth: number }) => {
                   {item.type === 'client' ? (
                     item.size / 1000
                   ) : (
-                    <CountUp start={item.size / 1000} end={0} />
+                    // <CountUp start={item.size / 1000} end={0} />
                   )}
                 </span>{' '}
                 KB

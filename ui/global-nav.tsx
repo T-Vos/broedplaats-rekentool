@@ -1,7 +1,7 @@
 'use client';
 
 import { navigation, type Item } from '#/lib/navigation';
-import { NextLogoDark } from '#/ui/next-logo';
+import { Logo } from '#/ui/logo';
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
@@ -20,12 +20,12 @@ export function GlobalNav() {
           className="group flex w-full items-center gap-x-2.5"
           onClick={close}
         >
-          <div className="h-7 w-7 rounded-full">
-            <NextLogoDark />
+          <div className="h-7 w-7 rounded-full stroke-gray-400 group-hover:stroke-gray-50">
+            <Logo />
           </div>
 
           <h3 className="font-semibold tracking-wide text-gray-400 group-hover:text-gray-50">
-            App Router
+            Broedplaats rekentool
           </h3>
         </Link>
       </div>
