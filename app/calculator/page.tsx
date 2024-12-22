@@ -1,7 +1,5 @@
 'use client';
 
-import { max, min } from 'd3';
-import { register } from 'module';
 import { useState } from 'react';
 
 interface RowData {
@@ -10,6 +8,123 @@ interface RowData {
   percCatering: number;
   percHalls: number;
   percArtStudios: number;
+}
+export interface Variables {
+  income: Income;
+  expenses: Expenses;
+  energyUsage: EnergyUsage;
+}
+
+export interface EnergyUsage {
+  electricity: Electricity;
+  gas: Gas;
+}
+
+export interface Electricity {
+  costs: ElectricityCosts;
+  catering: { [key: string]: number };
+  office: { [key: string]: number };
+}
+
+export interface ElectricityCosts {
+  minPerkWh: number;
+  maxPerkWh: number;
+  average: number;
+}
+
+export interface Gas {
+  costs: GasCosts;
+  catering: { [key: string]: number };
+  office: Office;
+}
+
+export interface GasCosts {
+  minPerM3: number;
+  maxPerM3: number;
+  average: number;
+}
+
+export interface Office {
+  minPerM2M3: number;
+  maxPerM2M3: number;
+}
+
+export interface Expenses {
+  labourCosts: LabourCosts;
+  renovation: Renovation;
+  loanCosts: LoanCosts;
+  legalCosts: LegalCosts;
+}
+
+export interface LabourCosts {
+  minCostPerHour: number;
+  maxCostPerHour: number;
+  workingPersonPerHour: number;
+  hoursUsage: number;
+}
+
+export interface LegalCosts {
+  notary: Accountancy;
+  accountancy: Accountancy;
+  uboRegistration: number;
+  registerChamberOfCommerce: number;
+  taxationNumber: number;
+  registrationStockHolders: number;
+  exploitationPermitWithoutTerrarsse: number;
+  exploitationPermitWithTerrarsse: number;
+}
+
+export interface Accountancy {
+  minCost: number;
+  maxCost: number;
+}
+
+export interface LoanCosts {
+  interestRate: number;
+  duration: number;
+  loanAmount: number;
+}
+
+export interface Renovation {
+  maxCostPerM2: number;
+  minCostPerM2: number;
+  furnitureCater: number;
+}
+
+export interface Income {
+  artStudios: ArtStudios;
+  catering: Catering;
+}
+
+export interface ArtStudios {
+  minIncomePerM2: number;
+  maxIncomePerM2: number;
+}
+
+export interface Catering {
+  peoplePerM2: PeoplePerM2;
+  expendure: Expendure;
+  open: Open;
+}
+
+export interface Open {
+  nightsPerWeek: number;
+}
+export interface Expendure {
+  perPerson: number;
+  margin: number;
+}
+
+export interface PeoplePerM2 {
+  max: number;
+  normal: number;
+  terrace: number;
+}
+
+export interface ScenarioVariables {
+  costScenario: 'average' | 'min' | 'max';
+  incomeScenario: 'average' | 'min' | 'max';
+  terraceScenario: boolean;
 }
 
 export default function Page() {
@@ -43,7 +158,7 @@ export default function Page() {
       percArtStudios: 0.6,
     },
   ]);
-  const [variables, setVariables] = useState<any>({
+  const [variables, setVariables] = useState<Variables>({
     income: {
       artStudios: {
         minIncomePerM2: 14,
@@ -58,6 +173,9 @@ export default function Page() {
         expendure: {
           perPerson: 25,
           margin: 0.8,
+        },
+        open: {
+          nightsPerWeek: 3,
         },
       },
     },
@@ -91,8 +209,8 @@ export default function Page() {
         registerChamberOfCommerce: 80,
         taxationNumber: 105.5,
         registrationStockHolders: 25,
-        exploitationPermit_withoutTerrarsse: 2200,
-        exploitationPermit_withTerrarsse: 2600,
+        exploitationPermitWithoutTerrarsse: 2200,
+        exploitationPermitWithTerrarsse: 2600,
       },
     },
     energyUsage: {
@@ -106,7 +224,7 @@ export default function Page() {
           minPerM2Kwh: 75,
           maxPerM2Kwh: 250,
         },
-        Office: {
+        office: {
           minPerM2Kwh: 60,
           maxPerM2Kwh: 100,
         },
@@ -121,13 +239,21 @@ export default function Page() {
           minPerM2Kwh: 21,
           maxPerM2Kwh: 40,
         },
-        Office: {
+        office: {
           minPerM2m3: 12,
           maxPerM2m3: 23,
         },
       },
     },
   });
+
+  const [ScenarioVariables, setScenarioVariables] = useState<ScenarioVariables>(
+    {
+      costScenario: 'average',
+      incomeScenario: 'average',
+      terraceScenario: false,
+    },
+  );
 
   const handleRowChange = (
     index: number,
@@ -153,10 +279,13 @@ export default function Page() {
   };
 
   const calculateExpactation = (row: RowData) => {
+    const income: number = calculateExpectedIncome(row);
+    const expense: number = calculateExpectedExpenses(row);
+    const profit: number = parseFloat((income - expense).toFixed(2));
     return {
-      income: calculateExpectedIncome(row),
-      expenses: calculateExpectedIncome(row),
-      profit: calculateExpectedIncome(row),
+      income: income,
+      expenses: expense,
+      profit: profit,
     };
   };
 
@@ -169,13 +298,95 @@ export default function Page() {
       cateringSize *
       variables.income.catering.peoplePerM2.normal *
       variables.income.catering.expendure.perPerson *
-      variables.income.catering.expendure.margin;
+      variables.income.catering.expendure.margin *
+      variables.income.catering.open.nightsPerWeek *
+      4;
     const artSize: number =
       (row.totalSize - cateringSize - row.percHalls * row.totalSize) *
       row.percArtStudios;
     const artStudioIncome: number =
       artSize * variables.income.artStudios.minIncomePerM2;
     return cateringIncome + artStudioIncome;
+  };
+  const calculateExpectedExpenses = (row: RowData) => {
+    let legalCosts = calculateLegalCosts();
+    let loanCosts = calculateLoanCosts();
+    let energyCosts = calculateEnergyCosts(row);
+    return parseFloat((legalCosts + loanCosts).toFixed(2));
+  };
+
+  const calculateLoanCosts = (): number => {
+    const interestRate = variables.expenses.loanCosts.interestRate;
+    const duration = variables.expenses.loanCosts.duration;
+    const loanAmount = variables.expenses.loanCosts.loanAmount;
+    const monthlyInterestRate = interestRate / 12;
+    const numberOfPayments = duration * 12;
+
+    return (
+      (loanAmount * monthlyInterestRate) /
+      (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments))
+    );
+  };
+  const calculateEnergyCosts = (row: RowData): number => {
+    let energyCosts = 0;
+    const electricityCosts = variables.energyUsage.electricity.costs;
+    const gasCosts = variables.energyUsage.gas.costs;
+    const cateringElectricity = variables.energyUsage.electricity.catering;
+    const officeElectricity = variables.energyUsage.electricity.office;
+    const cateringGas = variables.energyUsage.gas.catering;
+    const officeGas = variables.energyUsage.gas.office;
+    const cateringSize = Math.max(
+      row.minCatering,
+      row.totalSize * row.percCatering,
+    );
+    const hallsSize = row.totalSize * row.percHalls;
+    const artSize = row.totalSize * row.percArtStudios;
+    const cateringElectricityCost =
+      cateringSize *
+      cateringElectricity.minPerM2Kwh *
+      electricityCosts.minPerkWh;
+    const officeElectricityCost =
+      (row.totalSize - cateringSize - hallsSize) *
+      officeElectricity.minPerM2Kwh *
+      electricityCosts.minPerkWh;
+    const cateringGasCost =
+      cateringSize * cateringGas.minPerM2Kwh * gasCosts.minPerM3;
+    const officeGasCost =
+      (row.totalSize - cateringSize - hallsSize) *
+      officeGas.minPerM2M3 *
+      gasCosts.minPerM3;
+    energyCosts =
+      cateringElectricityCost +
+      officeElectricityCost +
+      cateringGasCost +
+      officeGasCost;
+    return energyCosts;
+  };
+
+  const calculateLegalCosts = (): number => {
+    let legalCosts = 0;
+    const notaryCosts = variables.expenses.legalCosts.notary;
+    const accountancyCosts = variables.expenses.legalCosts.accountancy;
+    const uboRegistration = variables.expenses.legalCosts.uboRegistration;
+    const registerChamberOfCommerce =
+      variables.expenses.legalCosts.registerChamberOfCommerce;
+    const taxationNumber = variables.expenses.legalCosts.taxationNumber;
+    const registrationStockHolders =
+      variables.expenses.legalCosts.registrationStockHolders;
+    const exploitationPermitWithoutTerrarsse =
+      variables.expenses.legalCosts.exploitationPermitWithoutTerrarsse;
+    const exploitationPermitWithTerrarsse =
+      variables.expenses.legalCosts.exploitationPermitWithTerrarsse;
+    legalCosts =
+      notaryCosts.minCost +
+      accountancyCosts.minCost +
+      uboRegistration +
+      registerChamberOfCommerce +
+      taxationNumber +
+      registrationStockHolders +
+      exploitationPermitWithoutTerrarsse +
+      exploitationPermitWithTerrarsse;
+    return legalCosts;
   };
 
   return (

@@ -1,0 +1,85 @@
+{
+  "income": {
+    "artStudios": {
+      "minIncomePerM2": 14,
+      "maxIncomePerM2": 16
+    },
+    "catering": {
+      "peoplePerM2": {
+        "max": 4,
+        "normal": 2,
+        "terrace": 1.5
+      },
+      "expendure": {
+        "perPerson": 25,
+        "margin": 0.8
+      }
+    }
+  },
+  "expenses": {
+    "labourCosts": {
+      "minCostPerHour": 15,
+      "maxCostPerHour": 20,
+      "workingPersonPerHour": 2,
+      "hoursUsage": 10
+    },
+    "renovation": {
+      "maxCostPerM2": 500,
+      "minCostPerM2": 300,
+      "furnitureCater": 25000
+    },
+    "loanCosts": {
+      "interestRate": 0.1,
+      "duration": 10,
+      "loanAmount": 500000
+    },
+    "legalCosts": {
+      "notary": {
+        "minCost": 500,
+        "maxCost": 1000
+      },
+      "accountancy": {
+        "minCost": 800,
+        "maxCost": 800
+      },
+      "uboRegistration": 25,
+      "registerChamberOfCommerce": 80,
+      "taxationNumber": 105.5,
+      "registrationStockHolders": 25,
+      "exploitationPermit_withoutTerrarsse": 2200,
+      "exploitationPermit_withTerrarsse": 2600
+    }
+  },
+  "energyUsage": {
+    "electricity": {
+      "costs": {
+        "minPerkWh": 0.0667,
+        "maxPerkWh": 0.6588,
+        "average": 0.15735
+      },
+      "catering": {
+        "minPerM2Kwh": 75,
+        "maxPerM2Kwh": 250
+      },
+      "Office": {
+        "minPerM2Kwh": 60,
+        "maxPerM2Kwh": 100
+      }
+    },
+    "gas": {
+      "costs": {
+        "minPerM3": 0.2616,
+        "maxPerM3": 2.783,
+        "average": 0.6329516666666668
+      },
+      "catering": {
+        "minPerM2Kwh": 21,
+        "maxPerM2Kwh": 40
+      },
+      "Office": {
+        "minPerM2m3": 12,
+        "maxPerM2m3": 23
+      }
+    }
+  }
+}
