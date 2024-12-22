@@ -1,9 +1,8 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import electricity_data from './data.json';
-import { mean, median, max, min, variance, log } from 'mathjs';
+import { mean, median, max, min, variance } from 'mathjs';
 import HistogramWithDistribution from '#/ui/HistogramWithDistribution';
 import SimpleBlock from '#/ui/simple-block';
-import { subtle } from 'crypto';
 export default function Page() {
   return (
     <>

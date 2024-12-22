@@ -1,0 +1,42 @@
+[
+  {
+    "totalSize": 500,
+    "minCatering": 200,
+    "percCatering": 0.3,
+    "percHalls": 0.1,
+    "percArtStudios": 0.6,
+    "artStudioSize": null,
+    "cateringSize": null,
+    "hallSize": null
+  },
+  {
+    "totalSize": 750,
+    "minCatering": 200,
+    "percCatering": 0.3,
+    "percHalls": 0.1,
+    "percArtStudios": 0.6,
+    "artStudioSize": null,
+    "cateringSize": null,
+    "hallSize": null
+  },
+  {
+    "totalSize": 1000,
+    "minCatering": 200,
+    "percCatering": 0.3,
+    "percHalls": 0.1,
+    "percArtStudios": 0.6,
+    "artStudioSize": null,
+    "cateringSize": null,
+    "hallSize": null
+  },
+  {
+    "totalSize": 1500,
+    "minCatering": 200,
+    "percCatering": 0.3,
+    "percHalls": 0.1,
+    "percArtStudios": 0.6,
+    "artStudioSize": null,
+    "cateringSize": null,
+    "hallSize": null
+  }
+]

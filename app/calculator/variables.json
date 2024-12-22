@@ -13,6 +13,9 @@
       "expendure": {
         "perPerson": 25,
         "margin": 0.8
+      },
+      "open": {
+        "nightsPerWeek": 3
       }
     }
   },
@@ -46,8 +49,8 @@
       "registerChamberOfCommerce": 80,
       "taxationNumber": 105.5,
       "registrationStockHolders": 25,
-      "exploitationPermit_withoutTerrarsse": 2200,
-      "exploitationPermit_withTerrarsse": 2600
+      "exploitationPermitWithoutTerrarsse": 2200,
+      "exploitationPermitWithTerrarsse": 2600
     }
   },
   "energyUsage": {
@@ -61,7 +64,7 @@
         "minPerM2Kwh": 75,
         "maxPerM2Kwh": 250
       },
-      "Office": {
+      "office": {
         "minPerM2Kwh": 60,
         "maxPerM2Kwh": 100
       }
@@ -76,9 +79,9 @@
         "minPerM2Kwh": 21,
         "maxPerM2Kwh": 40
       },
-      "Office": {
-        "minPerM2m3": 12,
-        "maxPerM2m3": 23
+      "office": {
+        "minPerM2M3": 12,
+        "maxPerM2M3": 23
       }
     }
   }
