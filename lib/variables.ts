@@ -13,6 +13,9 @@ export interface ExogenousVariables {
   notaris: number;
   percentageFundedLoan: number;
   nonLoaninterestRate: number;
+  overdrachtsBelasting: number;
+  overdrachtNotaris: number;
+  statutenakte: number;
 }
 
 export interface Variables {

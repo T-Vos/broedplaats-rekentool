@@ -1,6 +1,7 @@
 import { RowData } from '#/lib/row';
 import { ExogenousVariables } from '#/lib/variables';
 import clsx from 'clsx';
+import { e } from 'mathjs';
 
 export const Costs = ({
   ExogenousVariables,
@@ -13,39 +14,13 @@ export const Costs = ({
     style: 'currency',
     currency: 'EUR',
   });
-  const legalCosts =
-    ExogenousVariables.uboRegistration +
-    ExogenousVariables.registerChamberOfCommerce +
-    ExogenousVariables.taxationNumber +
-    ExogenousVariables.registrationStockHolders +
-    ExogenousVariables.exploitationPermitWithoutTerrarsse +
-    ExogenousVariables.accountant +
-    ExogenousVariables.notaris;
+
   const areaCost =
     rowVariables.totalSize * ExogenousVariables.prijsPerVierkanteMeter;
   const areaRenovation =
     rowVariables.totalSize * ExogenousVariables.kostenVerbouwing;
   const areaRenovationSupport =
     rowVariables.totalSize * ExogenousVariables.financieringGemeenteVerbouwing;
-  const renovationNetto = areaRenovation - areaRenovationSupport;
-
-  const totalAmount = areaCost + renovationNetto + legalCosts;
-  const totalBank = totalAmount * ExogenousVariables.percentageFundedLoan;
-  const totalPrivate =
-    totalAmount * (1 - ExogenousVariables.percentageFundedLoan);
-
-  const bankLoan = annuityLoanCalculator(
-    totalBank,
-    ExogenousVariables.leningDuurJaren,
-    ExogenousVariables.interestRate,
-  );
-  const privateLoan = annuityLoanCalculator(
-    totalPrivate,
-    ExogenousVariables.leningDuurJaren,
-    ExogenousVariables.nonLoaninterestRate,
-  );
-
-  const totalMonthlyLoan = privateLoan + bankLoan;
 
   const table = [
     {
@@ -103,9 +78,14 @@ export const Costs = ({
           includeInSum: true,
         },
         {
-          description: 'Jurridsche kosten aankoop',
-          value: '??',
-          includeInSum: false,
+          description: 'Overdrachtsbelasting',
+          value: (ExogenousVariables.overdrachtsBelasting / 100) * areaCost,
+          includeInSum: true,
+        },
+        {
+          description: 'Notaris overdracht',
+          value: ExogenousVariables.overdrachtNotaris,
+          includeInSum: true,
         },
       ],
     },
@@ -125,6 +105,33 @@ export const Costs = ({
       ],
     },
   ];
+
+  const totalAmount = table.reduce((acc, tableGroup) => {
+    const groupSum = tableGroup.groupItems
+      .filter((x) => x.includeInSum)
+      .reduce(
+        (acc, curr) =>
+          typeof curr.value === 'number' ? acc + curr.value : acc + 0,
+        0,
+      );
+    return acc + groupSum;
+  }, 0);
+  const totalBank = totalAmount * ExogenousVariables.percentageFundedLoan;
+  const totalPrivate =
+    totalAmount * (1 - ExogenousVariables.percentageFundedLoan);
+
+  const bankLoan = annuityLoanCalculator(
+    totalBank,
+    ExogenousVariables.leningDuurJaren,
+    ExogenousVariables.interestRate / 100 / 12,
+  );
+  const privateLoan = annuityLoanCalculator(
+    totalPrivate,
+    ExogenousVariables.leningDuurJaren,
+    ExogenousVariables.nonLoaninterestRate / 100 / 12,
+  );
+
+  const totalMonthlyLoan = privateLoan + bankLoan;
 
   return (
     <div className="flex flex-col">
@@ -189,20 +196,7 @@ export const Costs = ({
                   <td className="p-2">Start kosten totaal</td>
                   <td></td>
                   <td className="pr-2 text-right">
-                    {formatEuro.format(
-                      table.reduce((acc, tableGroup) => {
-                        const groupSum = tableGroup.groupItems
-                          .filter((x) => x.includeInSum)
-                          .reduce(
-                            (acc, curr) =>
-                              typeof curr.value === 'number'
-                                ? acc + curr.value
-                                : acc + 0,
-                            0,
-                          );
-                        return acc + groupSum;
-                      }, 0),
-                    )}
+                    {formatEuro.format(totalAmount)}
                   </td>
                 </tr>
                 <tr className="bg-slate-700">

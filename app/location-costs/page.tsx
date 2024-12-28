@@ -12,12 +12,12 @@ const page = () => {
   const [rows, setRows] = useState<RowData[]>(defaultRows);
   const [variables, setVariables] = useState<ExogenousVariables>({
     prijsPerVierkanteMeter: 1300,
-    interestRate: 0.1,
+    interestRate: 7.5,
     leningDuurJaren: 10,
     kostenVerbouwing: 500,
     financieringGemeenteVerbouwing: 350,
     percentageFundedLoan: 0.9,
-    nonLoaninterestRate: 0.03,
+    nonLoaninterestRate: 3,
     uboRegistration: 25,
     registerChamberOfCommerce: 80,
     taxationNumber: 105.5,
@@ -25,6 +25,9 @@ const page = () => {
     exploitationPermitWithoutTerrarsse: 2200,
     accountant: 800,
     notaris: 750,
+    overdrachtsBelasting: 10.4,
+    overdrachtNotaris: 800,
+    statutenakte: 50,
   });
 
   const handleInputChangeSlider =
@@ -49,6 +52,32 @@ const page = () => {
               value={variables.prijsPerVierkanteMeter}
               onChange={handleInputChangeSlider('prijsPerVierkanteMeter')}
               label="Prijs per m&sup2;"
+            />
+          ),
+        },
+        {
+          name: 'overdrachtNotaris',
+          render: () => (
+            <Slider
+              min={0}
+              max={1300}
+              step={10}
+              value={variables.overdrachtNotaris}
+              onChange={handleInputChangeSlider('overdrachtNotaris')}
+              label="overdracht notaris"
+            />
+          ),
+        },
+        {
+          name: 'overdrachtsBelasting',
+          render: () => (
+            <Slider
+              min={0}
+              max={30}
+              step={0.1}
+              value={variables.overdrachtsBelasting}
+              onChange={handleInputChangeSlider('overdrachtsBelasting')}
+              label="Overdrachtsbelasting"
             />
           ),
         },
@@ -90,7 +119,7 @@ const page = () => {
           render: () => (
             <Slider
               min={0}
-              max={0.3}
+              max={30}
               step={0.01}
               value={variables.interestRate}
               onChange={handleInputChangeSlider('interestRate')}
@@ -129,7 +158,7 @@ const page = () => {
           render: () => (
             <Slider
               min={0}
-              max={0.3}
+              max={12}
               step={0.01}
               value={variables.nonLoaninterestRate}
               onChange={handleInputChangeSlider('nonLoaninterestRate')}
