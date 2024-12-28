@@ -1,28 +1,28 @@
 'use client';
 
 import { RowData } from '#/lib/row';
-import { Variables } from '#/lib/variables';
+import {
+  ElectricityCosts,
+  ElectricityUsage,
+  GasCosts,
+  GasUsage,
+  Variables,
+} from '#/lib/variables';
 import { ScenarioVariables } from '#/lib/scenarioVariables';
 import { useState } from 'react';
-import standardVariables from './variables.json';
-import defaultRows from './defaultRows.json';
+import { standardVariables, defaultRows, scenarioVariables } from './variables';
 import {
   calculateArtStudioSize,
   calculateCateringSize,
   receiveFullRowCalculation,
 } from './calculations';
+import Button from '#/ui/button';
 
 export default function Page() {
   const [rows, setRows] = useState<RowData[]>(defaultRows);
   const [variables, setVariables] = useState<Variables>(standardVariables);
-
-  const [ScenarioVariables, setScenarioVariables] = useState<ScenarioVariables>(
-    {
-      costScenario: 'average',
-      incomeScenario: 'average',
-      terraceScenario: false,
-    },
-  );
+  const [ScenarioVariables, setScenarioVariables] =
+    useState<ScenarioVariables>(scenarioVariables);
 
   const handleRowChange = (
     index: number,
@@ -31,7 +31,6 @@ export default function Page() {
   ) => {
     const newRows = [...rows];
     let row = newRows[index];
-    row[field] = value;
     const { artStudioSize, cateringSize, hallSize } = receiveFullRowCalculation(
       row.totalSize,
       row.minCatering,
@@ -61,6 +60,7 @@ export default function Page() {
     setRows([
       ...rows,
       {
+        id: (rows.length + 1).toString(),
         totalSize: totalSize,
         minCatering: minCatering,
         percCatering: percCatering,
@@ -74,7 +74,7 @@ export default function Page() {
   };
 
   const calculateExpactation = (row: RowData) => {
-    const income: number = calculateExpectedIncome(row);
+    const income: number = parseFloat(calculateExpectedIncome(row).toFixed(2));
     const expense: number = calculateExpectedExpenses(row);
     const profit: number = parseFloat((income - expense).toFixed(2));
     return {
@@ -84,22 +84,23 @@ export default function Page() {
     };
   };
 
-  const calculateExpectedIncome = (row: RowData) => {
+  const calculateExpectedIncome = (row: RowData): number => {
     checkCorrectVariables(row);
     row.artStudioSize = row.artStudioSize || 1;
     row.cateringSize = row.cateringSize || 1;
     const cateringIncome: number =
       row.cateringSize *
       variables.income.catering.peoplePerM2.normal *
-      variables.income.catering.expendure.perPerson *
-      variables.income.catering.expendure.margin *
-      variables.income.catering.open.nightsPerWeek *
+      variables.income.catering.expenditure.perPerson *
+      variables.income.catering.expenditure.margin *
+      variables.income.catering.open.length *
       4; // 4 weeks in a month - This could be improved
 
     const artStudioIncome: number =
       row.artStudioSize * variables.income.artStudios.minIncomePerM2;
     return cateringIncome + artStudioIncome;
   };
+
   const calculateExpectedExpenses = (row: RowData) => {
     let legalCosts = calculateLegalCosts();
     let loanCosts = calculateLoanCosts();
@@ -124,39 +125,133 @@ export default function Page() {
     let energyCosts = 0;
     row.cateringSize = row.cateringSize || 1;
     row.artStudioSize = row.artStudioSize || 1;
+    row.hallSize = row.hallSize || 1;
+
     const electricityCosts = variables.energyUsage.electricity.costs;
     const gasCosts = variables.energyUsage.gas.costs;
 
-    const cateringElectricity = variables.energyUsage.electricity.catering;
-    const officeElectricity = variables.energyUsage.electricity.office;
+    const cateringElectricityUsage = variables.energyUsage.electricity.catering;
+    const officeElectricityUsage = variables.energyUsage.electricity.office;
+    const cateringGasUsage = variables.energyUsage.gas.catering;
+    const officeGasUsage = variables.energyUsage.gas.office;
 
-    const cateringGas = variables.energyUsage.gas.catering;
-    const officeGas = variables.energyUsage.gas.office;
+    const cateringElectricityCost = calculateEnergyCostOfSurface(
+      cateringElectricityUsage,
+      electricityCosts,
+      row.cateringSize,
+    );
+    row.cateringElectricityCost = cateringElectricityCost / 12;
 
-    const cateringElectricityCost =
-      row.cateringSize *
-      cateringElectricity.minPerM2Kwh *
-      electricityCosts.minPerkWh;
+    const officeElectricityCost = calculateEnergyCostOfSurface(
+      officeElectricityUsage,
+      electricityCosts,
+      row.artStudioSize,
+    );
+    row.officeElectricityCost = officeElectricityCost / 12;
 
-    const officeElectricityCost =
-      row.artStudioSize *
-      officeElectricity.minPerM2Kwh *
-      electricityCosts.minPerkWh;
+    const hallEclectricity = calculateEnergyCostOfSurface(
+      officeElectricityUsage,
+      electricityCosts,
+      row.hallSize,
+    );
+    row.hallEclectricity = hallEclectricity / 12;
 
-    const cateringGasCost =
-      row.cateringSize * cateringGas.minPerM2Kwh * gasCosts.minPerM3;
+    const cateringGasCost = calculateGasCost(
+      cateringGasUsage,
+      gasCosts,
+      row.cateringSize,
+    );
+    row.cateringGasCost = cateringGasCost / 12;
 
-    const officeGasCost =
-      row.artStudioSize * officeGas.minPerM2M3 * gasCosts.minPerM3;
+    const officeGasCost = calculateGasCost(
+      officeGasUsage,
+      gasCosts,
+      row.artStudioSize,
+    );
+    row.officeGasCost = officeGasCost / 12;
+
+    const hallGas = calculateGasCost(officeGasUsage, gasCosts, row.hallSize);
+    row.hallGas = hallGas;
 
     energyCosts =
+      hallGas +
+      hallEclectricity +
       cateringElectricityCost +
-      officeElectricityCost +
       cateringGasCost +
+      officeElectricityCost +
       officeGasCost;
+
+    row.totalEnergyCost = energyCosts;
     return energyCosts;
   };
-
+  function calculateEnergyCostOfSurface(
+    electricityUsage: ElectricityUsage,
+    costs: ElectricityCosts,
+    surface: number,
+  ): number {
+    let cost = null;
+    let usage = null;
+    switch (scenarioVariables.costScenario) {
+      case 'min':
+        cost = costs.minPerkWh;
+        break;
+      case 'max':
+        cost = costs.maxPerkWh;
+        break;
+      case 'average':
+        cost = costs.average || (costs.maxPerkWh + costs.minPerkWh) / 2;
+        break;
+    }
+    switch (scenarioVariables.usageScenario) {
+      case 'min':
+        usage = electricityUsage.minPerM2Kwh;
+        break;
+      case 'max':
+        usage = electricityUsage.maxPerM2Kwh;
+        break;
+      case 'average':
+        usage =
+          electricityUsage.average ||
+          (electricityUsage.maxPerM2Kwh + electricityUsage.minPerM2Kwh) / 2;
+        break;
+    }
+    // console.log('cost', cost);
+    // console.log('usage', usage);
+    // console.log('surface', surface);
+    return cost * usage * surface;
+  }
+  const calculateGasCost = (
+    gasUsage: GasUsage,
+    costs: GasCosts,
+    surface: number,
+  ): number => {
+    let cost = null;
+    let usage = null;
+    switch (scenarioVariables.costScenario) {
+      case 'min':
+        cost = costs.minPerM3;
+        break;
+      case 'max':
+        cost = costs.maxPerM3;
+        break;
+      case 'average':
+        cost = costs.average || (costs.minPerM3 + costs.maxPerM3) / 2;
+        break;
+    }
+    switch (scenarioVariables.usageScenario) {
+      case 'min':
+        usage = gasUsage.minM3Per2;
+        break;
+      case 'max':
+        usage = gasUsage.maxM3Per2;
+        break;
+      case 'average':
+        usage =
+          gasUsage.average || (gasUsage.minM3Per2 + gasUsage.maxM3Per2) / 2;
+        break;
+    }
+    return cost * usage * surface;
+  };
   const calculateLegalCosts = (): number => {
     let legalCosts = 0;
     const notaryCosts = variables.expenses.legalCosts.notary;
@@ -192,12 +287,7 @@ export default function Page() {
               <h1 className="text-xl font-bold">Model input</h1>
 
               <h2 className="mt-6 text-lg font-bold">Model</h2>
-              <button
-                onClick={addRow}
-                className="mb-4 rounded bg-blue-500 px-4 py-2 text-white"
-              >
-                Add Row
-              </button>
+              <Button onClick={addRow}>Add Row</Button>
               <table className="min-w-full bg-gray-800 text-white">
                 <thead>
                   <tr>
@@ -289,45 +379,68 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
-        <div className="rounded-lg bg-black p-3.5 lg:p-6">
-          <div className="space-y-9">
-            <div className="prose prose-sm prose-invert max-w-none">
-              <h1 className="text-xl font-bold">
-                Model results for an average month
-              </h1>
-              <table className="min-w-full bg-gray-800 text-white">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2">Total Size</th>
-                    <th className="px-4 py-2">Expected Income</th>
-                    <th className="px-4 py-2">Expected Expense</th>
-                    <th className="px-4 py-2">Expected Profit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, index) => {
-                    const expectation = calculateExpactation(row);
-                    return (
-                      <tr key={index}>
-                        <td className="border px-4 py-2">{row.totalSize}</td>
-                        <td className="border px-4 py-2">
-                          {expectation.income}
-                        </td>
-                        <td className="border px-4 py-2">
-                          {expectation.expenses}
-                        </td>
-                        <td className="border px-4 py-2">
-                          {expectation.profit}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+      <div className="flex-col justify-start gap-5">
+        <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
+          <div className="rounded-lg bg-black p-3.5 lg:p-6">
+            <div className="space-y-9">
+              <div className="prose prose-sm prose-invert max-w-none">
+                <h1 className="text-xl font-bold">
+                  Model results for an average month
+                </h1>
+                <table className="min-w-full bg-gray-800 text-white">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2">Total Size</th>
+                      <th className="px-4 py-2">Expected Income</th>
+                      <th className="px-4 py-2">Expected Expense</th>
+                      <th className="px-4 py-2">Expected Profit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, index) => {
+                      const expectation = calculateExpactation(row);
+                      return (
+                        <tr key={index}>
+                          <td className="border px-4 py-2">{row.totalSize}</td>
+                          <td className="border px-4 py-2">
+                            {expectation.income}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {expectation.expenses}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {expectation.profit}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
+        {rows.map((row, index) => {
+          return (
+            <div className="mt-5 rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
+              <div className="rounded-lg bg-black p-3.5 lg:p-6">
+                <h2>{index + 1}</h2>
+                <table>
+                  <tbody>
+                    {Object.keys(row).map((key) => {
+                      return (
+                        <tr>
+                          <td>{key}</td>
+                          <td>{row[key].toString()}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </>
   );

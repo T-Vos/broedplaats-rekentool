@@ -4,7 +4,7 @@ export function calculateArtStudioSize(
   percHalls: number,
   percArtStudios: number,
 ): number {
-  return (totalSize - cateringSize - percHalls * totalSize) * percArtStudios;
+  return totalSize - cateringSize;
 }
 
 export function calculateCateringSize(

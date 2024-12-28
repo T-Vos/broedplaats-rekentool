@@ -1,3 +1,20 @@
+export interface ExogenousVariables {
+  prijsPerVierkanteMeter: number;
+  interestRate: number;
+  leningDuurJaren: number;
+  kostenVerbouwing: number;
+  financieringGemeenteVerbouwing: number;
+  uboRegistration: number;
+  registerChamberOfCommerce: number;
+  taxationNumber: number;
+  registrationStockHolders: number;
+  exploitationPermitWithoutTerrarsse: number;
+  accountant: number;
+  notaris: number;
+  percentageFundedLoan: number;
+  nonLoaninterestRate: number;
+}
+
 export interface Variables {
   income: Income;
   expenses: Expenses;
@@ -11,31 +28,38 @@ export interface EnergyUsage {
 
 export interface Electricity {
   costs: ElectricityCosts;
-  catering: { [key: string]: number };
-  office: { [key: string]: number };
+  catering: ElectricityUsage;
+  office: ElectricityUsage;
 }
 
 export interface ElectricityCosts {
   minPerkWh: number;
   maxPerkWh: number;
-  average: number;
+  average?: number;
+}
+
+export interface ElectricityUsage {
+  minPerM2Kwh: number;
+  maxPerM2Kwh: number;
+  average?: number;
 }
 
 export interface Gas {
   costs: GasCosts;
-  catering: { [key: string]: number };
-  office: Office;
+  catering: GasUsage;
+  office: GasUsage;
 }
 
 export interface GasCosts {
   minPerM3: number;
   maxPerM3: number;
-  average: number;
+  average?: number;
 }
 
-export interface Office {
-  minPerM2M3: number;
-  maxPerM2M3: number;
+export interface GasUsage {
+  minM3Per2: number;
+  maxM3Per2: number;
+  average?: number;
 }
 
 export interface Expenses {
@@ -88,18 +112,29 @@ export interface Income {
 export interface ArtStudios {
   minIncomePerM2: number;
   maxIncomePerM2: number;
+  calculatingVariable: number;
 }
 
 export interface Catering {
   peoplePerM2: PeoplePerM2;
-  expendure: Expendure;
-  open: Open;
+  expenditure: Expenditure;
+  open: Open[];
 }
 
 export interface Open {
-  nightsPerWeek: number;
+  openNight:
+    | 'Monday'
+    | 'Tuesday'
+    | 'Wednesday'
+    | 'Thursday'
+    | 'Friday'
+    | 'Saturday'
+    | 'Sunday';
+  timeOpen: number;
+  timeClose: number;
 }
-export interface Expendure {
+
+export interface Expenditure {
   perPerson: number;
   margin: number;
 }
