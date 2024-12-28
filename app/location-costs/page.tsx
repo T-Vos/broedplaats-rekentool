@@ -27,11 +27,11 @@ const page = () => {
     notaris: 750,
   });
 
-  const handleInputChange =
+  const handleInputChangeSlider =
     (variableName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setVariables({
         ...variables,
-        [variableName]: event.target.value,
+        [variableName]: parseFloat(event.target.value),
       });
     };
 
@@ -43,24 +43,24 @@ const page = () => {
           name: 'prijsPerVierkanteMeter',
           render: () => (
             <Slider
-              min={0}
-              max={10000}
+              min={100}
+              max={2000}
               step={1}
               value={variables.prijsPerVierkanteMeter}
-              onChange={handleInputChange('prijsPerVierkanteMeter')}
+              onChange={handleInputChangeSlider('prijsPerVierkanteMeter')}
               label="Prijs per m&sup2;"
             />
           ),
         },
         {
-          name: 'KostenVerbouwing',
+          name: 'kostenVerbouwing',
           render: () => (
             <Slider
               min={150}
               max={1000}
               step={10}
               value={variables.kostenVerbouwing}
-              onChange={handleInputChange('KostenVerbouwing')}
+              onChange={handleInputChangeSlider('kostenVerbouwing')}
               label="Kosten verbouwing per m&sup2;"
             />
           ),
@@ -69,11 +69,13 @@ const page = () => {
           name: 'financieringGemeenteVerbouwing',
           render: () => (
             <Slider
-              min={150}
+              min={0}
               max={1000}
               step={10}
               value={variables.financieringGemeenteVerbouwing}
-              onChange={handleInputChange('financieringGemeenteVerbouwing')}
+              onChange={handleInputChangeSlider(
+                'financieringGemeenteVerbouwing',
+              )}
               label="Subsidie verbouwing per m&sup2;"
             />
           ),
@@ -88,10 +90,10 @@ const page = () => {
           render: () => (
             <Slider
               min={0}
-              max={1}
+              max={0.3}
               step={0.01}
               value={variables.interestRate}
-              onChange={handleInputChange('interestRate')}
+              onChange={handleInputChangeSlider('interestRate')}
               label="Rente bank"
             />
           ),
@@ -100,11 +102,11 @@ const page = () => {
           name: 'leningDuurJaren',
           render: () => (
             <Slider
-              min={0}
+              min={1}
               max={30}
               step={1}
               value={variables.leningDuurJaren}
-              onChange={handleInputChange('leningDuurJaren')}
+              onChange={handleInputChangeSlider('leningDuurJaren')}
               label="Lening duur jaren"
             />
           ),
@@ -117,7 +119,7 @@ const page = () => {
               max={1}
               step={0.01}
               value={variables.percentageFundedLoan}
-              onChange={handleInputChange('percentageFundedLoan')}
+              onChange={handleInputChangeSlider('percentageFundedLoan')}
               label="%-Banklening"
             />
           ),
@@ -127,10 +129,10 @@ const page = () => {
           render: () => (
             <Slider
               min={0}
-              max={1}
+              max={0.3}
               step={0.01}
               value={variables.nonLoaninterestRate}
-              onChange={handleInputChange('nonLoaninterestRate')}
+              onChange={handleInputChangeSlider('nonLoaninterestRate')}
               label="Rente onderhandselening"
             />
           ),
@@ -148,7 +150,9 @@ const page = () => {
               max={4000}
               step={100}
               value={variables.exploitationPermitWithoutTerrarsse}
-              onChange={handleInputChange('exploitationPermitWithoutTerrarsse')}
+              onChange={handleInputChangeSlider(
+                'exploitationPermitWithoutTerrarsse',
+              )}
               label="Horeca vergunning"
             />
           ),
@@ -161,7 +165,7 @@ const page = () => {
               max={1500}
               step={10}
               value={variables.notaris}
-              onChange={handleInputChange('notaris')}
+              onChange={handleInputChangeSlider('notaris')}
               label="Notaris kosten"
             />
           ),
@@ -174,7 +178,7 @@ const page = () => {
               max={1300}
               step={1}
               value={variables.accountant}
-              onChange={handleInputChange('accountant')}
+              onChange={handleInputChangeSlider('accountant')}
               label="Accountant"
             />
           ),
@@ -187,7 +191,7 @@ const page = () => {
               max={50}
               step={1}
               value={variables.registrationStockHolders}
-              onChange={handleInputChange('registrationStockHolders')}
+              onChange={handleInputChangeSlider('registrationStockHolders')}
               label="Aandeelhouder registratie"
             />
           ),
@@ -200,7 +204,7 @@ const page = () => {
               max={150}
               step={10}
               value={variables.taxationNumber}
-              onChange={handleInputChange('taxationNumber')}
+              onChange={handleInputChangeSlider('taxationNumber')}
               label="BTW nummber"
             />
           ),
@@ -213,7 +217,7 @@ const page = () => {
               max={150}
               step={10}
               value={variables.registerChamberOfCommerce}
-              onChange={handleInputChange('registerChamberOfCommerce')}
+              onChange={handleInputChangeSlider('registerChamberOfCommerce')}
               label="Registratie KvK"
             />
           ),
@@ -226,7 +230,7 @@ const page = () => {
               max={50}
               step={1}
               value={variables.uboRegistration}
-              onChange={handleInputChange('uboRegistration')}
+              onChange={handleInputChangeSlider('uboRegistration')}
               label="Ubo Registratie"
             />
           ),
