@@ -122,6 +122,11 @@ export const defaultRows: RowData[] = [
     artStudioSize: null,
     cateringSize: null,
     hallSize: null,
+    hallEclectricity: null,
+    cateringGasCost: null,
+    officeGasCost: null,
+    hallGas: null,
+    totalEnergyCost: null,
   },
   {
     id: '2',
@@ -133,6 +138,11 @@ export const defaultRows: RowData[] = [
     artStudioSize: null,
     cateringSize: null,
     hallSize: null,
+    hallEclectricity: null,
+    cateringGasCost: null,
+    officeGasCost: null,
+    hallGas: null,
+    totalEnergyCost: null,
   },
   {
     id: '3',
@@ -144,6 +154,11 @@ export const defaultRows: RowData[] = [
     artStudioSize: null,
     cateringSize: null,
     hallSize: null,
+    hallEclectricity: null,
+    cateringGasCost: null,
+    officeGasCost: null,
+    hallGas: null,
+    totalEnergyCost: null,
   },
 ];
 

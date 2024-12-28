@@ -69,6 +69,11 @@ export default function Page() {
         artStudioSize: artStudioSize,
         cateringSize: cateringSize,
         hallSize: hallSize,
+        hallEclectricity: null,
+        cateringGasCost: null,
+        officeGasCost: null,
+        hallGas: null,
+        totalEnergyCost: null,
       },
     ]);
   };
@@ -431,7 +436,7 @@ export default function Page() {
                       return (
                         <tr>
                           <td>{key}</td>
-                          <td>{row[key].toString()}</td>
+                          <td>{row[key as keyof RowData]?.toString()}</td>
                         </tr>
                       );
                     })}

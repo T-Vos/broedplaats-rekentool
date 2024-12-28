@@ -1,5 +1,3 @@
-import { VercelLogo } from '#/ui/vercel-logo';
-
 export default function Byline() {
   return (
     <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
