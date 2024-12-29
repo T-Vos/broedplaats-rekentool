@@ -382,7 +382,7 @@ const page = () => {
               step={10}
               value={variables.taxationNumber}
               onChange={handleInputChangeSlider('taxationNumber')}
-              label="BTW nummber"
+              label="BTW-nummer"
             />
           ),
         },
