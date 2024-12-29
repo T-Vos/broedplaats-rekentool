@@ -3,6 +3,10 @@ import { ExogenousVariables } from '#/lib/variables';
 import Button from '#/ui/button';
 import clsx from 'clsx';
 import React, { useState } from 'react';
+import {
+  calculateArtStudioSize,
+  calculateCateringSize,
+} from '../calculator/calculations';
 
 export const Costs = ({
   ExogenousVariables,
@@ -19,6 +23,9 @@ export const Costs = ({
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  checkCorrectVariables(rowVariables);
+
   const areaCost =
     rowVariables.totalSize * ExogenousVariables.prijsPerVierkanteMeter;
   const areaRenovation =
@@ -78,7 +85,7 @@ export const Costs = ({
           includeInSum: true,
         },
         {
-          description: 'Afwijken omgevingsplan',
+          description: 'Toezicht brandveiligheid',
           value:
             (ExogenousVariables.supervisionFireSafety / 100) * areaRenovation,
           includeInSum: true,
@@ -155,6 +162,77 @@ export const Costs = ({
 
   const totalMonthlyLoan = privateLoan + bankLoan;
 
+  const energyUsageTable = [
+    {
+      groupName: 'Gas',
+      groupItems: [
+        {
+          description: 'Gasverbruik Horeca',
+          value:
+            (ExogenousVariables.gasUsageCateringPerM2M3PerYear / 12) *
+            (rowVariables.cateringSize || 0) *
+            ExogenousVariables.gasCostM3,
+          includeInSum: true,
+        },
+        {
+          description: 'Gasverbruik ateliers',
+          value:
+            (ExogenousVariables.gasUsageOfficePerM2M3PerYear / 12) *
+            (rowVariables.artStudioSize || 0) *
+            ExogenousVariables.gasCostM3,
+          includeInSum: true,
+        },
+        {
+          description: 'Gasverbruik overig',
+          value:
+            (ExogenousVariables.gasUsageOfficePerM2M3PerYear / 12) *
+            (rowVariables.hallSize || 0) *
+            ExogenousVariables.gasCostM3,
+          includeInSum: true,
+        },
+      ],
+    },
+    {
+      groupName: 'Elektriciteit',
+      groupItems: [
+        {
+          description: 'Electiricteitverbruik Horeca',
+          value:
+            (ExogenousVariables.electricityUsageCateringPerM2kWhPerYear / 12) *
+            (rowVariables.cateringSize || 0) *
+            ExogenousVariables.electricityCostkWh,
+          includeInSum: true,
+        },
+        {
+          description: 'Electiricteitverbruik ateliers',
+          value:
+            (ExogenousVariables.electricityUsageOfficePerM2kWhPerYear / 12) *
+            (rowVariables.artStudioSize || 0) *
+            ExogenousVariables.electricityCostkWh,
+          includeInSum: true,
+        },
+        {
+          description: 'Electiricteitverbruik overig',
+          value:
+            (ExogenousVariables.electricityUsageOfficePerM2kWhPerYear / 12) *
+            (rowVariables.hallSize || 0) *
+            ExogenousVariables.electricityCostkWh,
+          includeInSum: true,
+        },
+      ],
+    },
+  ];
+  const totalEnergyCost = energyUsageTable.reduce((acc, tableGroup) => {
+    const groupSum = tableGroup.groupItems
+      .filter((x) => x.includeInSum)
+      .reduce(
+        (acc, curr) =>
+          typeof curr.value === 'number' ? acc + curr.value : acc + 0,
+        0,
+      );
+    return acc + groupSum;
+  }, 0);
+
   return (
     <div className="flex flex-col">
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -163,6 +241,43 @@ export const Costs = ({
             <Button onClick={toggleExpand}>
               {isExpanded ? 'Verberg details' : 'Meer details'}
             </Button>
+          </div>
+          <div className="my-8">
+            <div className="flex h-6 w-full">
+              <div
+                className="rounded-l-lg bg-slate-600"
+                style={{
+                  width: `${((rowVariables.cateringSize || 0) / rowVariables.totalSize) * 100}%`,
+                }}
+              >
+                <span className="inline-block w-full text-center">
+                  Horeca: {rowVariables.cateringSize?.toFixed(1)}m&sup2;
+                </span>
+              </div>
+              <div
+                className={clsx(
+                  'bg-slate-700',
+                  (rowVariables.hallSize ?? 0) > 0 ? '' : 'rounded-r-lg',
+                )}
+                style={{
+                  width: `${((rowVariables.artStudioSize ?? 0) / rowVariables.totalSize) * 100}%`,
+                }}
+              >
+                <span className="inline-block w-full text-center">
+                  Atelier: {rowVariables.artStudioSize?.toFixed(1)}m&sup2;
+                </span>
+              </div>
+              <div
+                className="rounded-r-lg bg-slate-500"
+                style={{
+                  width: `${((rowVariables.hallSize ?? 0) / rowVariables.totalSize) * 100}%`,
+                }}
+              >
+                <span className="inline-block w-full text-center">
+                  Overig: {rowVariables.hallSize?.toFixed(1)}m&sup2;
+                </span>
+              </div>
+            </div>
           </div>
           <div className="overflow-hidden">
             <table className="w-full">
@@ -292,10 +407,80 @@ export const Costs = ({
                     Last per m&sup2; per maand
                   </td>
                   <td></td>
-                  <td className="text-right italic">
+                  <td className="pr-2 text-right italic">
                     {formatEuro.format(
                       totalMonthlyLoan / rowVariables.totalSize,
                     )}
+                  </td>
+                </tr>
+                {energyUsageTable.map((tableGroup, index) => {
+                  const summation = tableGroup.groupItems
+                    .filter((x) => x.includeInSum)
+                    .reduce(
+                      (acc, curr) =>
+                        typeof curr.value === 'number'
+                          ? acc + curr.value
+                          : acc + 0,
+                      0,
+                    );
+                  let bg = index % 2 == 0 ? 'bg-gray-800' : 'bg-gray-600';
+                  let collapse = isExpanded ? '' : 'hidden';
+                  let rowClass = clsx(
+                    'border-white-700 border-b px-2',
+                    bg,
+                    collapse,
+                  );
+                  return (
+                    <>
+                      <tr className={rowClass} key={index}>
+                        <td colSpan={3} className="py-2 pl-2 font-semibold">
+                          {tableGroup.groupName}
+                        </td>
+                      </tr>
+                      {tableGroup.groupItems.map(
+                        (groupItems, indexGroupItems) => {
+                          return (
+                            <tr
+                              className={rowClass}
+                              key={`${index}-${indexGroupItems}`}
+                            >
+                              <td className="pl-4 italic">
+                                {groupItems.description}
+                              </td>
+                              <td className="text-right italic">
+                                {displayvalue(groupItems)}
+                              </td>
+                              <td></td>
+                            </tr>
+                          );
+                        },
+                      )}
+                      <tr className={rowClass} key={`${index}-sum`}>
+                        <td className="py-2 pl-2">
+                          {tableGroup.groupName} som
+                        </td>
+                        <td></td>
+                        <td className="pr-2 text-right">
+                          {formatEuro.format(summation)}
+                        </td>
+                      </tr>
+                    </>
+                  );
+                })}
+                <tr className="bg-slate-500">
+                  <td colSpan={2} className="py-4 pl-2 font-bold">
+                    Totaal maandelijkse energie kosten
+                  </td>
+                  <td className="py-4 pr-2 text-right font-bold">
+                    {formatEuro.format(totalEnergyCost)}
+                  </td>
+                </tr>
+                <tr className="bg-slate-600">
+                  <td colSpan={2} className="py-2 pl-2 italic">
+                    Indicatie maandelijkse kosten
+                  </td>
+                  <td className="pr-2 text-right italic">
+                    {formatEuro.format(totalEnergyCost + totalMonthlyLoan)}
                   </td>
                 </tr>
               </tbody>
@@ -337,5 +522,24 @@ export const Costs = ({
         )}
       </>
     );
+  }
+  function checkCorrectVariables(row: RowData) {
+    if (!row.cateringSize || row.cateringSize === 0) {
+      row.cateringSize = calculateCateringSize(
+        row.minCatering,
+        row.totalSize,
+        row.percCatering,
+      );
+    }
+    if (!row.artStudioSize || row.artStudioSize === 0) {
+      row.artStudioSize = calculateArtStudioSize(
+        row.totalSize,
+        row.cateringSize,
+        row.percHalls,
+      );
+    }
+    if (!row.hallSize || row.hallSize === 0) {
+      row.hallSize = row.totalSize - row.cateringSize - row.artStudioSize;
+    }
   }
 };

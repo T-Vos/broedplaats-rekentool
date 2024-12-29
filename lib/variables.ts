@@ -19,6 +19,12 @@ export interface ExogenousVariables {
   exploitationOutsideOmgevingsplan: number;
   supervisionFireSafety: number;
   permitOutsideOmgevingsplan: number;
+  gasUsageCateringPerM2M3PerYear: number;
+  gasUsageOfficePerM2M3PerYear: number;
+  gasCostM3: number;
+  electricityUsageCateringPerM2kWhPerYear: number;
+  electricityUsageOfficePerM2kWhPerYear: number;
+  electricityCostkWh: number;
 }
 
 export interface Variables {

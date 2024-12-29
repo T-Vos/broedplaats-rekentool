@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from '#/ui/slider';
 import { RowData } from '#/lib/row';
 import { defaultRows } from '../calculator/variables';
@@ -31,6 +31,12 @@ const page = () => {
     exploitationOutsideOmgevingsplan: 18000,
     supervisionFireSafety: 0.36,
     permitOutsideOmgevingsplan: 2.9,
+    gasUsageCateringPerM2M3PerYear: 50,
+    gasUsageOfficePerM2M3PerYear: 23,
+    gasCostM3: 0.63295166,
+    electricityUsageCateringPerM2kWhPerYear: 250,
+    electricityUsageOfficePerM2kWhPerYear: 100,
+    electricityCostkWh: 0.15735,
   });
 
   const handleInputChangeSlider =
@@ -172,7 +178,96 @@ const page = () => {
       ],
     },
     {
-      type: 'Jurridisch',
+      type: 'Energie verbruik',
+      items: [
+        {
+          name: 'gasUsageCateringPerM2M3PerYear',
+          render: () => (
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={variables.gasUsageCateringPerM2M3PerYear}
+              onChange={handleInputChangeSlider(
+                'gasUsageCateringPerM2M3PerYear',
+              )}
+              label="Gasverbruik horeca per m&sup2; per jaar"
+            />
+          ),
+        },
+        {
+          name: 'gasUsageOfficePerM2M3PerYear',
+          render: () => (
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={variables.gasUsageOfficePerM2M3PerYear}
+              onChange={handleInputChangeSlider('gasUsageOfficePerM2M3PerYear')}
+              label="Gasverbruik ateliers per m&sup2; per jaar"
+            />
+          ),
+        },
+        {
+          name: 'gasCostM3',
+          render: () => (
+            <Slider
+              min={0}
+              max={1}
+              step={0.01}
+              value={variables.gasCostM3}
+              onChange={handleInputChangeSlider('gasCostM3')}
+              label="Gaskosten per m&sup3;"
+            />
+          ),
+        },
+        {
+          name: 'electricityUsageCateringPerM2kWhPerYear',
+          render: () => (
+            <Slider
+              min={0}
+              max={400}
+              step={5}
+              value={variables.electricityUsageCateringPerM2kWhPerYear}
+              onChange={handleInputChangeSlider(
+                'electricityUsageCateringPerM2kWhPerYear',
+              )}
+              label="Electriciteitverbruik horeca per m&sup2; per jaar"
+            />
+          ),
+        },
+        {
+          name: 'electricityUsageOfficePerM2kWhPerYear',
+          render: () => (
+            <Slider
+              min={0}
+              max={400}
+              step={5}
+              value={variables.electricityUsageOfficePerM2kWhPerYear}
+              onChange={handleInputChangeSlider(
+                'electricityUsageOfficePerM2kWhPerYear',
+              )}
+              label="Electriciteitverbruik ateliers per m&sup2; per jaar"
+            />
+          ),
+        },
+        {
+          name: 'electricityCostkWh',
+          render: () => (
+            <Slider
+              min={0}
+              max={1}
+              step={0.001}
+              value={variables.electricityCostkWh}
+              onChange={handleInputChangeSlider('electricityCostkWh')}
+              label="Kosten per kWh"
+            />
+          ),
+        },
+      ],
+    },
+    {
+      type: 'Juridisch',
       items: [
         {
           name: 'exploitationOutsideOmgevingsplan',
@@ -319,6 +414,7 @@ const page = () => {
   ) => {
     const newRows = [...rows];
     let row = newRows[index];
+    (row[field] as number) = value;
     const { artStudioSize, cateringSize, hallSize } = receiveFullRowCalculation(
       row.totalSize,
       row.minCatering,
@@ -393,17 +489,22 @@ const page = () => {
           className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20"
         >
           <div className="rounded-lg bg-black p-3.5 lg:p-6">
-            <Button onClick={addRow}>Voeg regel toe</Button>
+            <div className="py-5">
+              <Button onClick={addRow}>Voeg regel toe</Button>
+            </div>
             <table className="min-w-full bg-gray-800 text-white">
               <thead>
                 <tr>
-                  <th className="px-4 py-2">m&sup2;</th>
+                  <th className="px-4 py-2">Totaal</th>
+                  <th className="px-4 py-2">min. horeca</th>
+                  <th className="px-4 py-2">% horeca</th>
+                  <th className="px-4 py-2">% overig</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row, index) => (
                   <tr key={index}>
-                    <td className="border px-4 py-2">
+                    <td className="px-4 py-2">
                       <input
                         type="number"
                         value={row.totalSize}
@@ -417,10 +518,61 @@ const page = () => {
                         className="w-full rounded bg-gray-700 text-white"
                       />
                     </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="number"
+                        value={row.minCatering}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            'minCatering',
+                            Number(e.target.value),
+                          )
+                        }
+                        className="w-full rounded bg-gray-700 text-white"
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="number"
+                        value={row.percCatering}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            'percCatering',
+                            Number(e.target.value),
+                          )
+                        }
+                        className="w-full rounded bg-gray-700 text-white"
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="number"
+                        value={row.percHalls}
+                        onChange={(e) =>
+                          handleRowChange(
+                            index,
+                            'percHalls',
+                            Number(e.target.value),
+                          )
+                        }
+                        className="w-full rounded bg-gray-700 text-white"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <div className="my-5 px-2">
+              <span className="text-sm">
+                De berekening prioriteert het poppodium. Hierbij vergelijkt hij
+                wat het grootste oppervlakte geeft, het minimum of de
+                procentuele toewijzing binnen het gebouw. Vervolgens wordt de
+                rest ruimte verdeeld tussen overig en daadwerkelijk ateltier
+                oppervlakte.
+              </span>
+            </div>
           </div>
         </div>
       </div>

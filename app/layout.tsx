@@ -26,11 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="[color-scheme:dark]">
+    <html lang="nl" className="[color-scheme:dark]">
       <body className="overflow-y-scroll bg-gray-1100 pb-36">
-        <GlobalNav />
+        {/* <GlobalNav /> */}
 
-        <div className="lg:pl-72">
+        {/* <div className="lg:pl-72"> */}
+        <div>
           <div className="max-w-9xl mx-auto space-y-8 px-2 pt-20 lg:px-8 lg:py-8">
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {children}

@@ -2,9 +2,9 @@ export function calculateArtStudioSize(
   totalSize: number,
   cateringSize: number,
   percHalls: number,
-  percArtStudios: number,
 ): number {
-  return totalSize - cateringSize;
+  const leftOverSize = totalSize - cateringSize;
+  return leftOverSize - leftOverSize * percHalls;
 }
 
 export function calculateCateringSize(
@@ -31,7 +31,6 @@ export function receiveFullRowCalculation(
     totalSize,
     cateringSize,
     percHalls,
-    percArtStudios,
   );
   const hallSize = totalSize - cateringSize - artStudioSize;
   return {
