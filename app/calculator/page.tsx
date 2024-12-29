@@ -465,7 +465,6 @@ export default function Page() {
         row.totalSize,
         row.cateringSize,
         row.percHalls,
-        row.percArtStudios,
       );
       updated = true;
     }
