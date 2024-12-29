@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Slider } from '#/ui/slider';
 import { RowData } from '#/lib/row';
 import { defaultRows } from '../calculator/variables';
@@ -38,6 +39,17 @@ const page = () => {
     electricityUsageOfficePerM2kWhPerYear: 100,
     electricityCostkWh: 0.15735,
   });
+
+  const pathname = usePathname();
+  const router = useRouter();
+  useEffect(() => {
+    const query = new URLSearchParams({
+      ...variables,
+      rows: JSON.stringify(rows),
+    } as any).toString();
+    const url = `${pathname}?${query}`;
+    router.replace(url, { scroll: false });
+  }, [variables, rows]);
 
   const handleInputChangeSlider =
     (variableName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
