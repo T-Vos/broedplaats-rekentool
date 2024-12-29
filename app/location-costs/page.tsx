@@ -149,7 +149,7 @@ const page = () => {
               step={0.01}
               value={variables.percentageFundedLoan}
               onChange={handleInputChangeSlider('percentageFundedLoan')}
-              label="%-Banklening"
+              label="Verhouding banklening"
             />
           ),
         },

@@ -1,7 +1,8 @@
 import { RowData } from '#/lib/row';
 import { ExogenousVariables } from '#/lib/variables';
+import Button from '#/ui/button';
 import clsx from 'clsx';
-import { e } from 'mathjs';
+import React, { useState } from 'react';
 
 export const Costs = ({
   ExogenousVariables,
@@ -14,7 +15,10 @@ export const Costs = ({
     style: 'currency',
     currency: 'EUR',
   });
-
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
   const areaCost =
     rowVariables.totalSize * ExogenousVariables.prijsPerVierkanteMeter;
   const areaRenovation =
@@ -137,9 +141,19 @@ export const Costs = ({
     <div className="flex flex-col">
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+          <div className="my-3">
+            <Button onClick={toggleExpand}>
+              {isExpanded ? 'Verberg details' : 'Meer details'}
+            </Button>
+          </div>
           <div className="overflow-hidden">
             <table className="w-full">
-              <tbody>
+              <tbody
+                className={clsx(
+                  'transition-all duration-500',
+                  isExpanded ? 'max-h-fit' : 'max-h-0 overflow-hidden',
+                )}
+              >
                 {table.map((tableGroup, index) => {
                   const summation = tableGroup.groupItems
                     .filter((x) => x.includeInSum)
@@ -151,7 +165,12 @@ export const Costs = ({
                       0,
                     );
                   let bg = index % 2 == 0 ? 'bg-gray-800' : 'bg-gray-600';
-                  let rowClass = clsx('border-white-700 border-b px-2', bg);
+                  let collapse = isExpanded ? '' : 'hidden';
+                  let rowClass = clsx(
+                    'border-white-700 border-b px-2',
+                    bg,
+                    collapse,
+                  );
                   return (
                     <>
                       <tr className={rowClass} key={index}>
@@ -189,54 +208,58 @@ export const Costs = ({
                     </>
                   );
                 })}
-                <tr
-                  className="border-t-4 border-t-slate-100 bg-slate-500"
-                  key="total-sum"
-                >
-                  <td className="p-2">Start kosten totaal</td>
-                  <td></td>
-                  <td className="pr-2 text-right">
-                    {formatEuro.format(totalAmount)}
-                  </td>
-                </tr>
-                <tr className="bg-slate-700">
-                  <td className="pl-2">Bancaire Lening</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr className="bg-slate-700">
-                  <td className="pl-4 italic">Lening hoeveelheid</td>
-                  <td className="text-right italic">
-                    {formatEuro.format(totalBank)}
-                  </td>
-                  <td></td>
-                </tr>
-                <tr className="bg-slate-700">
-                  <td className="pl-2">Maandelijkse last</td>
-                  <td></td>
-                  <td className="pr-2 text-right">
-                    {formatEuro.format(bankLoan)}
-                  </td>
-                </tr>
-                <tr className="bg-slate-600">
-                  <td className="pl-2">Onderhandse Lening</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr className="bg-slate-600">
-                  <td className="pl-4 italic">Lening hoeveelheid</td>
-                  <td className="text-right italic">
-                    {formatEuro.format(totalPrivate)}
-                  </td>
-                  <td></td>
-                </tr>
-                <tr className="bg-slate-600">
-                  <td className="pl-2 ">Maandelijkse last</td>
-                  <td></td>
-                  <td className="pr-2 text-right">
-                    {formatEuro.format(privateLoan)}
-                  </td>
-                </tr>
+                {isExpanded && (
+                  <>
+                    <tr
+                      className="border-t-4 border-t-slate-100 bg-slate-500"
+                      key="total-sum"
+                    >
+                      <td className="p-2">Start kosten totaal</td>
+                      <td></td>
+                      <td className="pr-2 text-right">
+                        {formatEuro.format(totalAmount)}
+                      </td>
+                    </tr>
+                    <tr className="bg-slate-700">
+                      <td className="pl-2">Bancaire Lening</td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr className="bg-slate-700">
+                      <td className="pl-4 italic">Lening hoeveelheid</td>
+                      <td className="text-right italic">
+                        {formatEuro.format(totalBank)}
+                      </td>
+                      <td></td>
+                    </tr>
+                    <tr className="bg-slate-700">
+                      <td className="pl-2">Maandelijkse last</td>
+                      <td></td>
+                      <td className="pr-2 text-right">
+                        {formatEuro.format(bankLoan)}
+                      </td>
+                    </tr>
+                    <tr className="bg-slate-600">
+                      <td className="pl-2">Onderhandse Lening</td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr className="bg-slate-600">
+                      <td className="pl-4 italic">Lening hoeveelheid</td>
+                      <td className="text-right italic">
+                        {formatEuro.format(totalPrivate)}
+                      </td>
+                      <td></td>
+                    </tr>
+                    <tr className="bg-slate-600">
+                      <td className="pl-2 ">Maandelijkse last</td>
+                      <td></td>
+                      <td className="pr-2 text-right">
+                        {formatEuro.format(privateLoan)}
+                      </td>
+                    </tr>
+                  </>
+                )}
                 <tr className="bg-slate-500">
                   <td className="py-4 pl-2 font-bold">
                     Totaal maandelijkse lasten
@@ -244,6 +267,17 @@ export const Costs = ({
                   <td></td>
                   <td className="py-4 pr-2 text-right font-bold">
                     {formatEuro.format(totalMonthlyLoan)}
+                  </td>
+                </tr>
+                <tr className="bg-slate-600">
+                  <td className="py-2 pl-2 italic">
+                    Last per m&sup2; per maand
+                  </td>
+                  <td></td>
+                  <td className="text-right italic">
+                    {formatEuro.format(
+                      totalMonthlyLoan / rowVariables.totalSize,
+                    )}
                   </td>
                 </tr>
               </tbody>

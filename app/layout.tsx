@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="[color-scheme:dark]">
-      <body className="overflow-y-scroll bg-gray-1100 bg-[url('/grid.svg')] pb-36">
+      <body className="overflow-y-scroll bg-gray-1100 pb-36">
         <GlobalNav />
 
         <div className="lg:pl-72">
