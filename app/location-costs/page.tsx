@@ -10,6 +10,8 @@ import { receiveFullRowCalculation } from '../calculator/calculations';
 import Button from '#/ui/button';
 
 const page = () => {
+  const searchParams = useSearchParams();
+
   const [rows, setRows] = useState<RowData[]>(defaultRows);
   const [variables, setVariables] = useState<ExogenousVariables>({
     prijsPerVierkanteMeter: 1300,
@@ -39,6 +41,27 @@ const page = () => {
     electricityUsageOfficePerM2kWhPerYear: 100,
     electricityCostkWh: 0.15735,
   });
+
+  useEffect(() => {
+    const queryVariables: Partial<ExogenousVariables> = {};
+    searchParams.forEach((value, key) => {
+      if (key in variables) {
+        queryVariables[key as keyof ExogenousVariables] = parseFloat(value);
+      }
+    });
+
+    if (Object.keys(queryVariables).length > 0) {
+      setVariables((prevVariables) => ({
+        ...prevVariables,
+        ...queryVariables,
+      }));
+    }
+
+    const queryRows = searchParams.get('rows');
+    if (queryRows) {
+      setRows(JSON.parse(queryRows));
+    }
+  }, [searchParams]);
 
   const pathname = usePathname();
   const router = useRouter();
