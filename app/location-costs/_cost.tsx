@@ -56,6 +56,11 @@ export const Costs = ({
           includeInSum: true,
         },
         {
+          description: 'Exploitatievergunning buiten omgevingplan',
+          value: ExogenousVariables.exploitationOutsideOmgevingsplan,
+          includeInSum: true,
+        },
+        {
           description: 'Accountant',
           value: ExogenousVariables.accountant,
           includeInSum: true,
@@ -63,6 +68,19 @@ export const Costs = ({
         {
           description: 'Notaris',
           value: ExogenousVariables.notaris,
+          includeInSum: true,
+        },
+        {
+          description: 'Afwijken omgevingsplan',
+          value:
+            (ExogenousVariables.permitOutsideOmgevingsplan / 100) *
+            areaRenovation,
+          includeInSum: true,
+        },
+        {
+          description: 'Afwijken omgevingsplan',
+          value:
+            (ExogenousVariables.supervisionFireSafety / 100) * areaRenovation,
           includeInSum: true,
         },
       ],

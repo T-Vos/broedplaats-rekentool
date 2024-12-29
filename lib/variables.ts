@@ -16,6 +16,9 @@ export interface ExogenousVariables {
   overdrachtsBelasting: number;
   overdrachtNotaris: number;
   statutenakte: number;
+  exploitationOutsideOmgevingsplan: number;
+  supervisionFireSafety: number;
+  permitOutsideOmgevingsplan: number;
 }
 
 export interface Variables {

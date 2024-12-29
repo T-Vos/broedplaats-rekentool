@@ -28,6 +28,9 @@ const page = () => {
     overdrachtsBelasting: 10.4,
     overdrachtNotaris: 800,
     statutenakte: 50,
+    exploitationOutsideOmgevingsplan: 18000,
+    supervisionFireSafety: 0.36,
+    permitOutsideOmgevingsplan: 2.9,
   });
 
   const handleInputChangeSlider =
@@ -172,6 +175,21 @@ const page = () => {
       type: 'Jurridisch',
       items: [
         {
+          name: 'exploitationOutsideOmgevingsplan',
+          render: () => (
+            <Slider
+              min={0}
+              max={20000}
+              step={1000}
+              value={variables.exploitationOutsideOmgevingsplan}
+              onChange={handleInputChangeSlider(
+                'exploitationOutsideOmgevingsplan',
+              )}
+              label="Vergunning exploitatie buiten omgevingsplan"
+            />
+          ),
+        },
+        {
           name: 'exploitationPermitWithoutTerrarsse',
           render: () => (
             <Slider
@@ -261,6 +279,32 @@ const page = () => {
               value={variables.uboRegistration}
               onChange={handleInputChangeSlider('uboRegistration')}
               label="Ubo Registratie"
+            />
+          ),
+        },
+        {
+          name: 'supervisionFireSafety',
+          render: () => (
+            <Slider
+              min={0}
+              max={10}
+              step={0.01}
+              value={variables.supervisionFireSafety}
+              onChange={handleInputChangeSlider('supervisionFireSafety')}
+              label="Toezicht brandveiligheid"
+            />
+          ),
+        },
+        {
+          name: 'permitOutsideOmgevingsplan',
+          render: () => (
+            <Slider
+              min={0}
+              max={10}
+              step={0.01}
+              value={variables.permitOutsideOmgevingsplan}
+              onChange={handleInputChangeSlider('permitOutsideOmgevingsplan')}
+              label="Afwijken omgevingsplan"
             />
           ),
         },
