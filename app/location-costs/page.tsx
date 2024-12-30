@@ -44,6 +44,28 @@ const page = () => {
   });
   const pathname = usePathname();
 
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const queryVariables: Partial<ExogenousVariables> = {};
+    query.forEach((value, key) => {
+      if (key in variables) {
+        queryVariables[key as keyof ExogenousVariables] = parseFloat(value);
+      }
+    });
+
+    if (Object.keys(queryVariables).length > 0) {
+      setVariables((prevVariables) => ({
+        ...prevVariables,
+        ...queryVariables,
+      }));
+    }
+
+    const queryRows = query.get('rows');
+    if (queryRows) {
+      setRows(JSON.parse(queryRows));
+    }
+  }, []);
+
   const shareURL = () => {
     console.log(pathname);
     const query = new URLSearchParams({
