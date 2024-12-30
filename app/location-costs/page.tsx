@@ -508,8 +508,8 @@ const page = () => {
         <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
           <div className="rounded-lg bg-black p-3.5 lg:p-6">
             <div className="flex h-10 flex-row items-center justify-start">
-              <Button>
-                <ShareIcon onClick={shareURL} className="h-5 w-5" />
+              <Button onClick={shareURL}>
+                <ShareIcon className="h-5 w-5" />
               </Button>
               <span
                 className={clsx(
