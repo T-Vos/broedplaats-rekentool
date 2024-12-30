@@ -8,10 +8,10 @@ import { Costs } from './_cost';
 import { ExogenousVariables } from '#/lib/variables';
 import { receiveFullRowCalculation } from '../calculator/calculations';
 import Button from '#/ui/button';
-
+import { ShareIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
 const page = () => {
-  const searchParams = useSearchParams();
-
+  const [copied, setCopied] = useState(false);
   const [rows, setRows] = useState<RowData[]>(defaultRows);
   const [variables, setVariables] = useState<ExogenousVariables>({
     prijsPerVierkanteMeter: 1300,
@@ -24,6 +24,7 @@ const page = () => {
     uboRegistration: 25,
     registerChamberOfCommerce: 80,
     taxationNumber: 105.5,
+
     registrationStockHolders: 25,
     exploitationPermitWithoutTerrarsse: 2200,
     accountant: 800,
@@ -41,38 +42,20 @@ const page = () => {
     electricityUsageOfficePerM2kWhPerYear: 100,
     electricityCostkWh: 0.15735,
   });
-
-  useEffect(() => {
-    const queryVariables: Partial<ExogenousVariables> = {};
-    searchParams.forEach((value, key) => {
-      if (key in variables) {
-        queryVariables[key as keyof ExogenousVariables] = parseFloat(value);
-      }
-    });
-
-    if (Object.keys(queryVariables).length > 0) {
-      setVariables((prevVariables) => ({
-        ...prevVariables,
-        ...queryVariables,
-      }));
-    }
-
-    const queryRows = searchParams.get('rows');
-    if (queryRows) {
-      setRows(JSON.parse(queryRows));
-    }
-  }, [searchParams]);
-
   const pathname = usePathname();
-  const router = useRouter();
-  useEffect(() => {
+
+  const shareURL = () => {
+    console.log(pathname);
     const query = new URLSearchParams({
       ...variables,
       rows: JSON.stringify(rows),
     } as any).toString();
-    const url = `${pathname}?${query}`;
-    router.replace(url, { scroll: false });
-  }, [variables, rows]);
+    const url = `${window.location.origin}${pathname}?${query}`;
+    navigator.clipboard.writeText(url);
+    console.log(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 750);
+  };
 
   const handleInputChangeSlider =
     (variableName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -500,6 +483,24 @@ const page = () => {
   return (
     <>
       <div className="flex flex-col gap-5">
+        <div className="rounded-lg bg-vc-border-gradient p-px shadow-lg shadow-black/20">
+          <div className="rounded-lg bg-black p-3.5 lg:p-6">
+            <div className="flex h-10 flex-row items-center justify-start">
+              <Button>
+                <ShareIcon onClick={shareURL} className="h-5 w-5" />
+              </Button>
+              <span
+                className={clsx(
+                  'ml-3 w-fit animate-pulse rounded-md bg-slate-500 px-3 py-2 text-white',
+                  copied ? 'inline-block' : 'hidden',
+                )}
+              >
+                Gekopieerd
+              </span>
+            </div>
+          </div>
+        </div>
+
         {variablesInputConfig.map((config) => (
           <div
             key={config.type}
