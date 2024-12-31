@@ -242,43 +242,7 @@ export const Costs = ({
               {isExpanded ? 'Verberg details' : 'Meer details'}
             </Button>
           </div>
-          <div className="my-8">
-            <div className="flex h-6 w-full">
-              <div
-                className="rounded-l-lg bg-slate-600"
-                style={{
-                  width: `${((rowVariables.cateringSize || 0) / rowVariables.totalSize) * 100}%`,
-                }}
-              >
-                <span className="inline-block w-full text-center">
-                  Horeca: {rowVariables.cateringSize?.toFixed(1)}m&sup2;
-                </span>
-              </div>
-              <div
-                className={clsx(
-                  'bg-slate-700',
-                  (rowVariables.hallSize ?? 0) > 0 ? '' : 'rounded-r-lg',
-                )}
-                style={{
-                  width: `${((rowVariables.artStudioSize ?? 0) / rowVariables.totalSize) * 100}%`,
-                }}
-              >
-                <span className="inline-block w-full text-center">
-                  Atelier: {rowVariables.artStudioSize?.toFixed(1)}m&sup2;
-                </span>
-              </div>
-              <div
-                className="rounded-r-lg bg-slate-500"
-                style={{
-                  width: `${((rowVariables.hallSize ?? 0) / rowVariables.totalSize) * 100}%`,
-                }}
-              >
-                <span className="inline-block w-full text-center">
-                  Overig: {rowVariables.hallSize?.toFixed(1)}m&sup2;
-                </span>
-              </div>
-            </div>
-          </div>
+          {areaSizesDisplay(rowVariables)}
           <div className="overflow-hidden">
             <table className="w-full">
               <tbody
@@ -543,3 +507,66 @@ export const Costs = ({
     }
   }
 };
+function areaSizesDisplay(rowVariables: RowData) {
+  const cateringSize = rowVariables.cateringSize || 0;
+  const totalSize = rowVariables.totalSize;
+  const artSize = rowVariables.artStudioSize ?? 0;
+  const hallSize = rowVariables.hallSize || 0;
+  return (
+    <div style={{ marginBottom: '5em', marginTop: '2em' }}>
+      <div className="relative flex h-6 w-full">
+        <div
+          className="rounded-l-lg bg-slate-600"
+          style={{
+            width: `${(cateringSize / totalSize) * 100}%`,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              right: `${100 - (cateringSize / totalSize) * 100 + 1}%`,
+              marginTop: '1.5em',
+            }}
+          >
+            Horeca: {cateringSize.toFixed(1)}m&sup2;
+          </span>
+        </div>
+        <div
+          className={clsx(
+            'bg-slate-700',
+            (rowVariables.hallSize ?? 0) > 0 ? '' : 'rounded-r-lg',
+          )}
+          style={{
+            width: `${((artSize ?? 0) / totalSize) * 100}%`,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              right: `${100 - ((artSize + cateringSize) / totalSize) * 100 + 1}%`,
+              marginTop: '2.5em',
+            }}
+          >
+            Atelier: {artSize.toFixed(1)}m&sup2;
+          </span>
+        </div>
+        <div
+          className="rounded-r-lg bg-slate-500"
+          style={{
+            width: `${(hallSize / totalSize) * 100}%`,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              right: 1,
+              marginTop: '3.7em',
+            }}
+          >
+            Overig: {hallSize.toFixed(1)}m&sup2;
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
